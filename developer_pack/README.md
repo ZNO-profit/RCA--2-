@@ -65,7 +65,7 @@ The LLM only understands the question and writes the answer. Everything in betwe
 | 6 | relationship_map.yaml | Layer 1 of the map |
 | 7 | evidence_links.csv + evidence_links.md | Layer 2, from EDA and tests; columns, strength rules, how it is updated |
 | 8 | data_contracts.md | Metadata, dimensions, actuals, drivers, forecasts and forecast parts; load checks |
-| 9 | question_bank.csv | Acceptance tests by shape, with expected answers (to come) |
+| 9 | question_bank.csv | Acceptance tests: 54 questions by shape with the expected form and route (part 1). Expected numbers (part 2) to be computed on the v2 sample |
 
 ## Rules that hold everywhere
 
