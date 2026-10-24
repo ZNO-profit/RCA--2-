@@ -2,7 +2,7 @@
 
 Status: draft v0.1 (24 Oct 2026). Thresholds, defaults and the product / region levels agreed 24 Oct. Items still marked **TO AGREE** need a decision before build.
 
-Data change needed for this design: the export adds `supply_format`, `fu` and `region` to both datasets (BP nests in FU, FU in supply format; cluster in region).
+**Build in two phases.** Phase 1 is deliberately simple: five data files (sample_v1 plus FU / supply format / region, two driver files, metadata), four analyses, the evidence test in a simple form (driver change shown next to the metric's change, no verdicts), and the current guardrails and fallback. Phase 2 items are marked in each file and are the direction for later, not part of the first build.
 
 This pack replaces the hypothesis-loop design in `Forecast_RCA_Side_by_Side_Review.docx`. The agent answers three kinds of question about the Channels and ECOM data:
 
@@ -64,8 +64,8 @@ The LLM only understands the question and writes the answer. Everything in betwe
 | 5 | answer_templates.md | One template per shape |
 | 6 | relationship_map.yaml | Layer 1 of the map |
 | 7 | evidence_links.csv + evidence_links.md | Layer 2, from EDA and tests; columns, strength rules, how it is updated |
-| 8 | data_contracts.md | Metadata, dimensions, actuals, drivers, forecasts and forecast parts; load checks |
-| 9 | question_bank.csv | Acceptance tests: 54 questions by shape with the expected form and route (part 1). Expected numbers (part 2) to be computed on the v2 sample |
+| 8 | data_contracts.md | Phase 1: the five files and their columns, driver-name mapping, load checks; phase 2 direction |
+| 9 | question_bank.csv | Acceptance tests: 54 questions by shape with the expected form and route (part 1). Expected numbers (part 2) to be computed on the v2 sample. In phase 1, timing (T), seasonal (S) and persistence (P) questions are expected to take the fallback route |
 
 ## Rules that hold everywhere
 

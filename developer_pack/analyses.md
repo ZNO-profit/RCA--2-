@@ -4,6 +4,15 @@ Each analysis is a function with parameters. Code builds the SQL from `relations
 
 Settings live in one settings file, not in code.
 
+## Phases
+
+| Phase | Analyses |
+|---|---|
+| **1 (build now)** | 1 factor_split, 2 segment_contribution (with breadth), 3 rate_mix_split, 7 forecast_vs_reference (without forecast parts), 8 evidence_test in its simple form (below) |
+| **2 (later)** | 4 change_timing, 5 seasonal_check, 6 persistence_check, forecast parts in 7, verdicts in 8 |
+
+In phase 1, a question whose shape is `timing`, `seasonal` or `persistence` goes to the fallback (exploratory) path.
+
 ## 1. factor_split
 
 **For:** volume (channels).
@@ -72,7 +81,9 @@ Then the rate effect is broken down by segment as in `segment_contribution`.
 2. Expected effect = link effect × driver change.
 3. Compare with the observed change.
 
-**Verdicts (numeric, in code):**
+**Phase 1 (simple form):** for each candidate link, show the driver's change next to the metric's change in that segment and period, plus the link's `strength`, `status` and `evidence` line. No verdict and no "share explained". The answer says "possible cause" for links with status `use`, and adds "evidence is limited" for `use with caution`.
+
+**Phase 2 verdicts (numeric, in code):**
 
 | Verdict | Rule (thresholds in Settings) |
 |---|---|
