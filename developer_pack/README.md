@@ -63,7 +63,7 @@ The LLM only understands the question and writes the answer. Everything in betwe
 | 4 | fallback_and_guardrails.md | Fixed replies, SQL safety, fallback path, logging |
 | 5 | answer_templates.md | One template per shape |
 | 6 | relationship_map.yaml | Layer 1 of the map |
-| 7 | evidence_links.csv + contract | Layer 2, from EDA (to come) |
+| 7 | evidence_links.csv + evidence_links.md | Layer 2, from EDA and tests; columns, strength rules, how it is updated |
 | 8 | data_contracts.md | Driver data and forecast parts (to come) |
 | 9 | question_bank.csv | Acceptance tests by shape, with expected answers (to come) |
 
