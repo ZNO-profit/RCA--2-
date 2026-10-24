@@ -1,0 +1,117 @@
+# Relationship map, layer 1: what is always true about the data.
+# Read by code (to build SQL, validate the question form, run the breakdowns)
+# and summarised for the LLM in step 1. Draft v0.1, 24 Oct 2026.
+
+datasets:
+  channels:
+    grain: [bp, channel, cluster, month]
+    channels: [Retail_COC, Retail_ROC, MT, SS, Vending]
+    note: ECOM is a separate dataset with a different measure (offtake). Never add the two.
+  ecom:
+    grain: [bp, cluster, customer, place, month]
+    customers: [Blinkit, Zepto, Instamart]
+    places: [Large cities, Other places]
+    note: Offtake only. No cabinets, ECO % or throughput. No business forecast.
+
+# How to roll each metric up. "sum" = additive. "ratio" = recompute from sums.
+# "stock" = a level at a point in time: sum across series, average across months.
+metrics:
+  volume:
+    dataset: channels
+    type: sum
+    scaled: true
+  cabinets:
+    dataset: channels
+    type: stock            # sum across series within a month; average across months
+    scaled: true
+  eco_count:               # active cabinets
+    dataset: channels
+    type: stock
+    formula: cabinets * eco_pct            # at row level
+    scaled: true
+  eco_pct:                 # coverage: share of cabinets that are active
+    dataset: channels
+    type: ratio
+    formula: SUM(eco_count) / NULLIF(SUM(cabinets), 0)
+    scaled: false
+    never: AVG(eco_pct)
+  throughput:              # volume per active cabinet
+    dataset: channels
+    type: ratio
+    formula: SUM(volume) / NULLIF(SUM(eco_count), 0)
+    scaled: true
+  offtake:
+    dataset: ecom
+    type: sum
+    scaled: true
+
+# Exact identities. Hold at any grain if the rates are built from sums as above.
+identities:
+  - name: volume_factors
+    dataset: channels
+    expression: volume = cabinets * eco_pct * throughput
+    over_a_period: >
+      For a period of n months: SUM(volume) = n * avg_monthly(cabinets) * eco_pct * throughput,
+      with eco_pct = SUM(eco_count)/SUM(cabinets) and throughput = SUM(volume)/SUM(eco_count)
+      over the period. Equal-length periods: n cancels. Unequal: n is a fourth factor.
+    breaks_when: >
+      rows with eco_count > 0 and volume = 0, or volume > 0 and eco_count = 0 (both exist,
+      mostly Retail_ROC and Retail_COC). Report their volume as a separate "rows outside the
+      identity" bucket; do not force them into a factor.
+  - name: offtake_by_place
+    dataset: ecom
+    expression: offtake = offtake[Large cities] + offtake[Other places]
+
+# Error and growth measures. Always pooled (sum first, then divide).
+measures:
+  wape:  SUM(ABS(forecast - actual)) / NULLIF(SUM(actual), 0)
+  bias:  SUM(forecast - actual) / NULLIF(SUM(actual), 0)   # negative = forecast low
+  accuracy: 1 - wape
+  growth: SUM(current) / NULLIF(SUM(reference), 0) - 1
+  share:  SUM(part) / NULLIF(SUM(whole), 0)
+  never: [average of per-series WAPE, average of growth rates, average of rates]
+
+# Dimensions and how they nest. "nests_in" = every value belongs to exactly one parent.
+dimensions:
+  product:
+    levels: [supply_format, fu, bp]        # bp nests in fu, fu nests in supply_format
+    in_agent_data: [supply_format, fu, bp] # supply_format and fu to be added to the export (agreed 24 Oct)
+  geography:
+    levels: [region, cluster]              # cluster nests in region
+    in_agent_data: [region, cluster]       # region to be added to the export (agreed 24 Oct)
+  channel:
+    levels: [channel]
+    datasets: [channels]
+  customer:
+    levels: [customer]
+    datasets: [ecom]
+  place:
+    levels: [place]
+    datasets: [ecom]
+  time:
+    levels: [year, quarter, month]
+    format: YYYY-MM
+    crossed_with: all                      # every dimension is crossed with time
+
+# Which breakdown applies to which metric.
+breakdowns:
+  volume:     [factor_split, segment_contribution]
+  cabinets:   [segment_contribution]
+  eco_count:  [segment_contribution]
+  eco_pct:    [rate_mix_split]
+  throughput: [rate_mix_split]
+  offtake:    [segment_contribution]
+
+# Data windows. TO AGREE: generate from the data on load rather than hard-coding.
+windows:
+  history:   {from: 2024-04, to: 2026-03}
+  backtest:  {from: 2026-01, to: 2026-03, origin: 2025-11}
+  forward:   {from: 2026-04, to: 2026-12, note: naive placeholder forecast; say so when used}
+  business_forecast: {from: 2026-01, to: 2026-03, datasets: [channels], zero_means: missing}
+
+# Comparisons a question can ask for, and what each one means.
+references:
+  last_year:      same months one year earlier
+  prior_period:   the same number of months immediately before
+  business:       business_forecast, only on rows where it is not missing (both sides filtered)
+  actual:         actuals for the same rows and months (back-test only)
