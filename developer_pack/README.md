@@ -19,8 +19,8 @@ The LLM only understands the question and writes the answer. Everything in betwe
 ```
  A. DATA (loaded offline, refreshed with each data drop)
     Facts       channels, ecom actuals
-    Drivers     weather, festivals, platform measures, stores    -> contract: item 8 (to come)
-    Forecasts   back-test, forward, business, with named parts   -> contract: item 8 (to come)
+    Drivers     weather, festivals, platform measures, stores    -> data_contracts.md
+    Forecasts   back-test, forward, business, with named parts   -> data_contracts.md
 
  B. KNOWLEDGE (files in this pack, read by code)
     relationship_map.yaml   layer 1: metrics, formulas, aggregation, hierarchies, factor splits
@@ -64,7 +64,7 @@ The LLM only understands the question and writes the answer. Everything in betwe
 | 5 | answer_templates.md | One template per shape |
 | 6 | relationship_map.yaml | Layer 1 of the map |
 | 7 | evidence_links.csv + evidence_links.md | Layer 2, from EDA and tests; columns, strength rules, how it is updated |
-| 8 | data_contracts.md | Driver data and forecast parts (to come) |
+| 8 | data_contracts.md | Metadata, dimensions, actuals, drivers, forecasts and forecast parts; load checks |
 | 9 | question_bank.csv | Acceptance tests by shape, with expected answers (to come) |
 
 ## Rules that hold everywhere

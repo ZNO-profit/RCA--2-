@@ -102,7 +102,8 @@ breakdowns:
   throughput: [rate_mix_split]
   offtake:    [segment_contribution]
 
-# Data windows. TO AGREE: generate from the data on load rather than hard-coding.
+# Data windows. Values below are sample_v1's; at run time they are read from
+# metadata.csv (data_contracts.md, 1), so a new drop moves them without code changes.
 windows:
   history:   {from: 2024-04, to: 2026-03}
   backtest:  {from: 2026-01, to: 2026-03, origin: 2025-11}
